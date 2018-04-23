@@ -1,0 +1,13 @@
+body {
+    background-color: gray;
+	font-family: 'Work Sans', sans-serif;
+	font-weight: 400;
+}
+
+h1.center {
+    position: absolute;
+    text-align: center;
+    top: 45%;
+    left: 0;
+    right:0;
+}
