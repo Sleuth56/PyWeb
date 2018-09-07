@@ -1,6 +1,9 @@
-"""PyWeb a simple web server built in Python3."""
+#!/usr/bin/python3
+
+#------PyWeb a simple web server built in Python3------
 from socket import socket, AF_INET, SOCK_STREAM
 import os
+
 PORT = 80
 IP = '0.0.0.0'
 WEBSITE_FOLDER = 'website'
@@ -8,55 +11,52 @@ HOME_FILE = WEBSITE_FOLDER +  '/' + 'index.html'
 ERROR_404_PAGE = '404.html'
 
 
-#definging the serversocket variable and setting it to use the TCP protocol
+#------starting TCP socket server------
 SERVERSOCKET = socket(AF_INET, SOCK_STREAM)
 SERVERSOCKET.bind((IP, PORT))
 SERVERSOCKET.listen(10)
 
-#welcome screen
+#------welcome screen------
 print("Server started")
 print("Port: " + str(PORT))
 
 
-def load_binary(file):
-    """Loading the target file and reading it as a binary."""
+#------Loads the target file and reading it in as bytes------
+def load_file(file):
     with open(file, 'rb') as file2:
         return file2.read()
 
 
 while True:
     (CLIENTSOCKET, ADDRESS) = SERVERSOCKET.accept()
-    #getting browser stats
+    #------Gets browser stats------
     DATA = bytes.decode(CLIENTSOCKET.recv(1024))
 
-    #extract the file from the contence of the responce
-    #try:
+    #------extracts the file from the contence of the responce------
     PAGE = str(DATA).split()[1]
-    #except:
-        #pass
 
     print(WEBSITE_FOLDER + str(PAGE))
 
-    #testing if the browser wants the root file
+    #------if the browser wants the root file------
     if PAGE == '/':
-        #tell the browser that the connection is good and what format to expect
-        CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n"+"\n"))
-        CLIENTSOCKET.send(load_binary(HOME_FILE))
-    #testing if the browser asked for a css file
+        #------send OK and the root html file------
+        CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n\n"))
+        CLIENTSOCKET.send(load_file(HOME_FILE))
+    #------if the browser asked for a css file------
     elif PAGE.find('.css') != -1:
-        CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/css\n"+"\n"))
-        CLIENTSOCKET.send(load_binary(WEBSITE_FOLDER + '/' + PAGE))
+        CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/css\n\n"))
+        CLIENTSOCKET.send(load_file(WEBSITE_FOLDER + '/' + PAGE))
+    #------send OK and the html file the browser asked for------
     else:
-        #finding the file and sending it to the browser
         if os.path.isfile(WEBSITE_FOLDER + PAGE):
-            #tell the browser that the connection is good and what format to expect
-            CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n"+"\n"))
-            CLIENTSOCKET.send(load_binary(WEBSITE_FOLDER + '/' +  PAGE))
+            CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n\n"))
+            CLIENTSOCKET.send(load_file(WEBSITE_FOLDER + '/' +  PAGE))
+        #------send the ERROR_404_PAGE------
         else:
-            CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n"+"\n"))
-            CLIENTSOCKET.send(load_binary(ERROR_404_PAGE))
+            CLIENTSOCKET.send(str.encode("HTTP/1.1 200 OK\n"+"Content-Type: text/html\n\n"))
+            CLIENTSOCKET.send(load_file(ERROR_404_PAGE))
 
-    #closing the connection
+    #------close the connection------
     CLIENTSOCKET.close()
-#closing the socket
+#------close the socket------
 SERVERSOCKET.close()
