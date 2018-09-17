@@ -1,2 +1,2 @@
 # PyWeb
-A easy to use web server built in Python
+An easy to use web server built in Python
